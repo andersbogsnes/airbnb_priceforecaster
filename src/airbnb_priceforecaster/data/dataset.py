@@ -24,13 +24,13 @@ class AirBnBDataset(FileDataset):
             return
         url = f"http://data.insideairbnb.com/denmark/hovedstaden/copenhagen/" \
               f"{self.year}-{self.month:02}-{self.day:02}/data/listings.csv.gz"
-
+        self.raw_data_path.parent.mkdir(exist_ok=True, parents=True)
         print(f"Getting data from {url}...")
         with tempfile.NamedTemporaryFile(mode="wb") as temp:
             urlretrieve(url, temp.name)
             print("Data downloaded, unzipping...")
             with gzip.open(temp.name, "rt") as f:
-                self.file_path.write_text(f.read())
+                self.raw_data_path.write_text(f.read())
         print("Done fetching data!")
 
     def preprocess_data(self, force=False):
@@ -65,7 +65,20 @@ class AirBnBDataset(FileDataset):
             "bed_type",
             "amenities",
             "square_feet",
-            "price"
+            "price",
+            "security_deposit",
+            "cleaning_fee",
+            "guests_included",
+            "extra_people",
+            "minimum_nights",
+            "maximum_nights",
+            "instant_bookable",
+            "is_business_travel_ready",
+            "cancellation_policy",
+            "require_guest_profile_picture",
+            "require_guest_phone_verification",
+
+
 
         ]
 
@@ -74,7 +87,8 @@ class AirBnBDataset(FileDataset):
 
         }
 
-        df = pd.read_csv(self.raw_data_path, dtype=mappings)
+        df = pd.read_csv(self.raw_data_path, dtype=mappings, usecols=usecols)
+        self.file_path.parent.mkdir(exist_ok=True, parents=True)
         df.to_parquet(self.file_path)
 
     def load_training_data(self) -> Tuple[pd.DataFrame, DataType]:
