@@ -1,3 +1,12 @@
+"""
+amenities
+=========
+Different types of amenities available. Should affect price
+
+A set of amenities. Read as string and preprocess
+dtype: string
+"""
+
 from ml_tooling.transformers import Select
 
 amenities_list = ['cable_tv',

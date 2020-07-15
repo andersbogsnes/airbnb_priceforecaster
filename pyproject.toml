@@ -10,7 +10,7 @@ python = "^3.8"
 pandas = "^1.0.5"
 pyarrow = "^0.17.1"
 ml_tooling = "^0.10.3"
-httpx = "^0.13.3"
+requests = "^2.24.0"
 
 [tool.poetry.dev-dependencies]
 jupyterlab = "^2.1.5"

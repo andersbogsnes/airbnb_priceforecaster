@@ -37,6 +37,7 @@ class AirBnBDataset(FileDataset):
     def preprocess_data(self, force=False):
         if self.file_path.exists() and not force:
             print("Data is already preprocessed - skipping...")
+            return
 
         print("Preprocessing data...")
         df = pd.read_csv(self.raw_data_path, dtype=MAPPINGS, usecols=MAPPINGS.keys())

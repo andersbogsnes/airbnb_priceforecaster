@@ -1,6 +1,6 @@
 import pandas as pd
-import asyncio
-from airbnb_priceforecaster.data.external_data import get_all_zipcodes
+import numpy as np
+from airbnb_priceforecaster.data.external_data import get_missing_zip_codes
 
 MAPPINGS = {
     "house_rules": "string",
@@ -18,6 +18,7 @@ MAPPINGS = {
     "latitude": "float64",
     "longitude": "float64",
     "property_type": "category",
+    "room_type": "category",
     "accommodates": "Int8",
     "bathrooms": "float32",
     "bedrooms": "Int8",
@@ -52,6 +53,10 @@ def convert_bool(series):
     return series.map({"t": True, "f": False}).astype("bool")
 
 
+def convert_datetime(series, format="%Y-%m-%d"):
+    return pd.to_datetime(series, format=format)
+
+
 def one_hot_encode_amenities(df: pd.DataFrame):
     return (
         df.amenities
@@ -68,11 +73,16 @@ def one_hot_encode_amenities(df: pd.DataFrame):
     )
 
 
-def convert_amenities(df: pd.DataFrame):
+def convert_amenities(df: pd.DataFrame) -> pd.DataFrame:
     one_hot_df = one_hot_encode_amenities(df)
     return df.join(one_hot_df).drop(columns="amenities")
 
 
+def convert_zipcode(df: pd.DataFrame) -> pd.DataFrame:
+    df.loc[df.zipcode.str.len() > 4, "zipcode"] = np.nan
+    df = get_missing_zip_codes(df)
+    df["zipcode"] = df["zipcode"].astype("int16")
+    return df
 
 
 def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
@@ -90,6 +100,9 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
             require_guest_profile_picture=lambda x: convert_bool(x.require_guest_profile_picture),
             require_guest_phone_verification=lambda x: convert_bool(
                 x.require_guest_phone_verification),
-            house_rules_len=lambda x: x["house_rules"].str.len()
+            house_rules_len=lambda x: x["house_rules"].str.len(),
+            host_since=lambda x: convert_datetime(x["host_since"])
         )
-            .pipe(convert_amenities))
+            .pipe(convert_amenities)
+            .pipe(convert_zipcode)
+    )
