@@ -63,13 +63,13 @@ def one_hot_encode_amenities(df: pd.DataFrame):
             .str.slice(start=1, stop=-1)  # Remove the "{}" at the front and back
             .str.replace('"', '')  # Remove quoting of multi-word amenities
             .str.split(",")
-            .apply(lambda x: pd.Series(index=set(x), data=1))  # For each row, make a Series of
-            # 1s. `apply` will concatenate
-            # the result
-            .fillna(0)
+            # For each row, make a Series of 1s. `apply` will concatenate the result
+            .apply(lambda x: pd.Series(index=set(x), data=True))
+            .fillna(False)
             .astype("bool")
-            .rename(columns=lambda x: "_".join(x.split(" ")).lower())  # Rename all columns to
-        # lowercase snake_case
+            # Rename all columns to lowercase snake_case
+            .rename(columns=lambda x: "_".join(x.split(" ")).lower())
+
     )
 
 

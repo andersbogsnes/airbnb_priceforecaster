@@ -7,3 +7,5 @@ RAW_DATA_PATH = DATA_PATH / "raw"
 INTERIM_DATA_PATH = DATA_PATH / "interim"
 PROCESSED_DATA_PATH = DATA_PATH / "processed"
 EXTERNAL_DATA_PATH = DATA_PATH / "external"
+
+VISUALIZATIONS = BASE_PATH / "reports" / "figures"

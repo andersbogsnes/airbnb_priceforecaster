@@ -7,6 +7,7 @@ from urllib.request import urlretrieve
 from airbnb_priceforecaster import RAW_DATA_PATH, PROCESSED_DATA_PATH
 from airbnb_priceforecaster.data.preprocess import preprocess_data, MAPPINGS
 import gzip
+import numpy as np
 
 
 class AirBnBDataset(FileDataset):
@@ -50,7 +51,8 @@ class AirBnBDataset(FileDataset):
         self.download_data()
         self.preprocess_data()
         df = pd.read_parquet(self.file_path)
-        return df.drop(columns="price"), df.price
+        y = np.log1p(df.price)
+        return df.drop(columns="price"), y
 
     def load_prediction_data(self, idx) -> pd.DataFrame:
         return pd.read_csv(self.file_path).iloc[idx].drop(columns="is_canceled")

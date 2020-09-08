@@ -1,17 +1,29 @@
 from airbnb_priceforecaster.data import AirBnBDataset
-from airbnb_priceforecaster.features import get_pipeline
+from airbnb_priceforecaster.features import features
 from ml_tooling import Model
 from sklearn.ensemble import RandomForestRegressor
+import matplotlib.pyplot as plt
+from airbnb_priceforecaster import VISUALIZATIONS
 
 
-def train_model(year, month, day, clf=RandomForestRegressor()):
+def train_model(year, month, day, graphs=True, clf=RandomForestRegressor()):
     dataset = AirBnBDataset(year=year, month=month, day=day)
     dataset.create_train_test()
 
-    clf = get_pipeline(clf)
-    model = Model(clf)
-    return model.score_estimator(dataset)
+    model = Model(clf, feature_pipeline=features)
+    result = model.score_estimator(dataset)
+    model.config.N_JOBS = 6
+    with model.log("randomforest"):
+        model.save_estimator()
 
+    if graphs:
+        result.plot.feature_importance()
+        plt.savefig(VISUALIZATIONS / "confusion_matrix.png")
 
-if __name__ == '__main__':
-    train_model(2020, 5, 30)
+        result.plot.residuals()
+        plt.savefig(VISUALIZATIONS / "residuals.png")
+
+        result.plot.prediction_error()
+        plt.savefig(VISUALIZATIONS / "prediction_error.png")
+
+    return result
